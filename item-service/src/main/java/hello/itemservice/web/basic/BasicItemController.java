@@ -16,7 +16,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import hello.itemservice.domain.item.Item;
 import hello.itemservice.domain.item.ItemRepository;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Controller
 @RequestMapping("/basic/items")
 public class BasicItemController {
@@ -44,7 +46,9 @@ public class BasicItemController {
     }
 
     @GetMapping("/add")
-    public String add(){
+    public String add(Model model){
+
+        model.addAttribute("item", new Item());
         return "basic/addForm";
     }
    
@@ -86,7 +90,8 @@ public class BasicItemController {
 
     @PostMapping("/add")
     public String addItemV4(@ModelAttribute("item") Item item, RedirectAttributes redirectAttributes){
-    
+        
+        log.info("item.open={}", item.getOpen());
         Item saveItem = itemRepository.save(item);
         redirectAttributes.addAttribute("itemId",saveItem.getId());
         redirectAttributes.addAttribute("status", true);
