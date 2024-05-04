@@ -1,6 +1,8 @@
 package hello.itemservice.web.basic;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,6 +27,16 @@ public class BasicItemController {
     
     private final ItemRepository itemRepository;
 
+    //모든 model에 다 담김
+    @ModelAttribute("regions")
+    public Map<String, String> regions(){
+        Map<String, String> regions = new LinkedHashMap<>();
+        regions.put("SEOUL", "서울");
+        regions.put("BUSAN","부산");
+        regions.put("JEJU","제주");
+        return regions;
+    }
+
     @Autowired
     public BasicItemController(ItemRepository itemRepository){
         this.itemRepository = itemRepository;
@@ -47,7 +59,6 @@ public class BasicItemController {
 
     @GetMapping("/add")
     public String add(Model model){
-
         model.addAttribute("item", new Item());
         return "basic/addForm";
     }
