@@ -123,7 +123,7 @@ public class BasicItemController {
         log.info("item.open={}", item.getOpen());
         log.info("item.regions={}", item.getRegions());
         log.info("item.itemType={}",item.getItemType());
-        log.info("item.DeliverCode={}",item.getDeliverCode());
+        log.info("item.DeliverCode={}",item.getDeliveryCode());
 
         Item saveItem = itemRepository.save(item);
         redirectAttributes.addAttribute("itemId",saveItem.getId());
