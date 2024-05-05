@@ -1,5 +1,6 @@
 package hello.itemservice.web.basic;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,8 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import hello.itemservice.domain.item.DeliveryCode;
 import hello.itemservice.domain.item.Item;
 import hello.itemservice.domain.item.ItemRepository;
+import hello.itemservice.domain.item.ItemType;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,6 +38,21 @@ public class BasicItemController {
         regions.put("BUSAN","부산");
         regions.put("JEJU","제주");
         return regions;
+    }
+
+    @ModelAttribute("itemTypes")
+    public ItemType[] itemTypes(){
+        ItemType[] values = ItemType.values();
+        return values;
+    }
+
+    @ModelAttribute("deliveryCodes")
+    public List<DeliveryCode> deliveryCodes(){
+        List<DeliveryCode> deliveryCodes = new ArrayList<>();
+        deliveryCodes.add(new DeliveryCode("FAST", "빠른 배송"));
+        deliveryCodes.add(new DeliveryCode("NORMAL", "일반 배송"));
+        deliveryCodes.add(new DeliveryCode("SLOW", "느린 배송"));
+        return deliveryCodes;
     }
 
     @Autowired
@@ -103,6 +121,10 @@ public class BasicItemController {
     public String addItemV4(@ModelAttribute("item") Item item, RedirectAttributes redirectAttributes){
         
         log.info("item.open={}", item.getOpen());
+        log.info("item.regions={}", item.getRegions());
+        log.info("item.itemType={}",item.getItemType());
+        log.info("item.DeliverCode={}",item.getDeliverCode());
+
         Item saveItem = itemRepository.save(item);
         redirectAttributes.addAttribute("itemId",saveItem.getId());
         redirectAttributes.addAttribute("status", true);
