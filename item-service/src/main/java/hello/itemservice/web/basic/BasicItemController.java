@@ -1,6 +1,7 @@
 package hello.itemservice.web.basic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -119,11 +121,20 @@ public class BasicItemController {
 
     @PostMapping("/add")
     public String addItemV4(@ModelAttribute("item") Item item, RedirectAttributes redirectAttributes){
-        
-        log.info("item.open={}", item.getOpen());
-        log.info("item.regions={}", item.getRegions());
-        log.info("item.itemType={}",item.getItemType());
-        log.info("item.DeliverCode={}",item.getDeliveryCode());
+
+        //검증 오류 결과를 보관
+        Map<String, String> errors = new HashMap<>();
+
+        //검증 로직
+        if(!StringUtils.hasText(item.getItemName())){
+            errors.put("itemName", "상품 이름은 필수입니다");
+        }
+        if(item.getPrice() == null || item.getPrice() < 1000 || item.getPrice() > 1000000){
+            errors.put("price", "가격은 1,000 ~ 1,000,000 까지 허용합니다.");
+        }
+        if(item.getQuantity() == null || item.getQuantity()>=9999){
+            errors.put("quantity","수량은 최대 9,999 까지 허용합니다.");
+        }
 
         Item saveItem = itemRepository.save(item);
         redirectAttributes.addAttribute("itemId",saveItem.getId());
