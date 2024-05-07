@@ -120,7 +120,7 @@ public class BasicItemController {
     }
 
     @PostMapping("/add")
-    public String addItemV4(@ModelAttribute("item") Item item, RedirectAttributes redirectAttributes){
+    public String addItemV4(@ModelAttribute("item") Item item, RedirectAttributes redirectAttributes, Model model){
 
         //검증 오류 결과를 보관
         Map<String, String> errors = new HashMap<>();
@@ -136,6 +136,22 @@ public class BasicItemController {
             errors.put("quantity","수량은 최대 9,999 까지 허용합니다.");
         }
 
+        //특정 필드가 아닌 복합 룰 검증
+        if(item.getPrice() != null && item.getQuantity() != null){
+            int resultPrice = item.getPrice() * item.getQuantity();
+            if(resultPrice < 10000){
+                errors.put("globalError", "가격 * 수량의 합은 10,000원 이상이어야 합니다. 현재 값 = " + resultPrice);
+            }
+        }
+
+        //검증에 실패하면 다시 입력 폼으로
+        if(!errors.isEmpty()){
+            log.info("errors={}",errors);
+            model.addAttribute("errors", errors);
+            return "basic/addForm";
+        }
+
+        //성공 로직
         Item saveItem = itemRepository.save(item);
         redirectAttributes.addAttribute("itemId",saveItem.getId());
         redirectAttributes.addAttribute("status", true);
