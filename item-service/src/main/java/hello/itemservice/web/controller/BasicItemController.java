@@ -1,4 +1,4 @@
-package hello.itemservice.web.basic;
+package hello.itemservice.web.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,8 +26,8 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Controller
-@RequestMapping("/basic/items")
+//@Controller
+//@RequestMapping("/basic/items")
 public class BasicItemController {
     
     private final ItemRepository itemRepository;
