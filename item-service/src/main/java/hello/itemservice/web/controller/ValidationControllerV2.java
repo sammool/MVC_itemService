@@ -235,6 +235,12 @@ public class ValidationControllerV2 {
         return "redirect:http://super-spoon-q5w94jx5xxph645p-8080.app.github.dev/basic/items/{itemId}";
     }
 
+    /*Validation 정리
+     * 1.rejectValue() 호출
+     * 2.MessageCodesResolver를 사용해서 검증 오류 코드로 메시지 코드들 생성
+     * 3.new FieldError() 생성해서 메시지 코드들 보관
+     * 4.th:errors에서 메시지 코드들로 메시지를 순서대로 메시지에서 찾고, 노출
+     */
 
 
     @GetMapping("{itemId}/edit")
