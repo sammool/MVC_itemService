@@ -13,7 +13,10 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,15 +28,24 @@ import hello.itemservice.domain.item.DeliveryCode;
 import hello.itemservice.domain.item.Item;
 import hello.itemservice.domain.item.ItemRepository;
 import hello.itemservice.domain.item.ItemType;
+import hello.itemservice.web.validation.ItemValidator;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Controller
+@RequiredArgsConstructor
 @RequestMapping("/basic/items")
 public class ValidationControllerV2 {
     
     private final ItemRepository itemRepository;
+    private final ItemValidator itemValidator;
+
+    @InitBinder
+    public void init(WebDataBinder dataBinder){
+        dataBinder.addValidators(itemValidator);
+    }
 
     //모든 model에 다 담김
     @ModelAttribute("regions")
@@ -58,11 +70,6 @@ public class ValidationControllerV2 {
         deliveryCodes.add(new DeliveryCode("NORMAL", "일반 배송"));
         deliveryCodes.add(new DeliveryCode("SLOW", "느린 배송"));
         return deliveryCodes;
-    }
-
-    @Autowired
-    public ValidationControllerV2(ItemRepository itemRepository){
-        this.itemRepository = itemRepository;
     }
 
     @GetMapping
@@ -198,7 +205,7 @@ public class ValidationControllerV2 {
         return "redirect:http://super-spoon-q5w94jx5xxph645p-8080.app.github.dev/basic/items/{itemId}";
     }
 
-    @PostMapping("/add")
+    //@PostMapping("/add")
     public String addItemV4(@ModelAttribute("item") Item item, BindingResult bindingResult,RedirectAttributes redirectAttributes, Model model){
 
         //V4 bindingResult는 objectName을 이미 알고있음
@@ -220,6 +227,41 @@ public class ValidationControllerV2 {
                 bindingResult.rejectValue(null,"totalPriceMin", new Object[]{10000, resultPrice}, null);
             }
         }
+
+        //검증에 실패하면 다시 입력 폼으로
+        if(bindingResult.hasErrors()){
+            log.info("errors={}",bindingResult);
+            return "basic/addForm";
+        }
+
+        //성공 로직
+        Item saveItem = itemRepository.save(item);
+        redirectAttributes.addAttribute("itemId",saveItem.getId());
+        redirectAttributes.addAttribute("status", true);
+        
+        return "redirect:http://super-spoon-q5w94jx5xxph645p-8080.app.github.dev/basic/items/{itemId}";
+    }
+
+    //@PostMapping("/add")
+    public String addItemV5(@ModelAttribute("item") Item item, BindingResult bindingResult,RedirectAttributes redirectAttributes, Model model){
+
+        itemValidator.validate(item, bindingResult);
+
+        //검증에 실패하면 다시 입력 폼으로
+        if(bindingResult.hasErrors()){
+            log.info("errors={}",bindingResult);
+            return "basic/addForm";
+        }
+
+        //성공 로직
+        Item saveItem = itemRepository.save(item);
+        redirectAttributes.addAttribute("itemId",saveItem.getId());
+        redirectAttributes.addAttribute("status", true);
+        
+        return "redirect:http://super-spoon-q5w94jx5xxph645p-8080.app.github.dev/basic/items/{itemId}";
+    }
+    @PostMapping("/add")
+    public String addItemV6(@Validated @ModelAttribute("item") Item item, BindingResult bindingResult,RedirectAttributes redirectAttributes, Model model){
 
         //검증에 실패하면 다시 입력 폼으로
         if(bindingResult.hasErrors()){
