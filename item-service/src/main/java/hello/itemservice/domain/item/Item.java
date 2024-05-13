@@ -3,6 +3,7 @@ package hello.itemservice.domain.item;
 import java.util.List;
 
 import org.hibernate.validator.constraints.Range;
+import org.hibernate.validator.constraints.ScriptAssert;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
@@ -14,7 +15,7 @@ import lombok.Setter;
 public class Item {
     private Long id;
 
-    @NotBlank
+    @NotBlank()
     private String itemName;
 
     @NotNull

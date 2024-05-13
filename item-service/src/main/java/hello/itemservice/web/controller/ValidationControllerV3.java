@@ -40,12 +40,6 @@ import lombok.extern.slf4j.Slf4j;
 public class ValidationControllerV3 {
     
     private final ItemRepository itemRepository;
-    private final ItemValidator itemValidator;
-
-    @InitBinder
-    public void init(WebDataBinder dataBinder){
-        dataBinder.addValidators(itemValidator);
-    }
 
     //모든 model에 다 담김
     @ModelAttribute("regions")
@@ -96,7 +90,16 @@ public class ValidationControllerV3 {
 
     
     @PostMapping("/add")
-    public String addItemV6(@Validated @ModelAttribute("item") Item item, BindingResult bindingResult,RedirectAttributes redirectAttributes, Model model){
+    public String addItem(@Validated @ModelAttribute("item") Item item, BindingResult bindingResult,RedirectAttributes redirectAttributes, Model model){
+        
+        // 글로벌 오류는 Bean Validation 비추
+        //특정 필드가 아닌 복합 룰 검증
+        if(item.getPrice() != null && item.getQuantity() != null){
+            int resultPrice = item.getPrice() * item.getQuantity();
+            if(resultPrice < 10000){
+                bindingResult.rejectValue(null,"totalPriceMin", new Object[]{10000, resultPrice}, null);
+            }
+        }
 
         //검증에 실패하면 다시 입력 폼으로
         if(bindingResult.hasErrors()){
@@ -128,7 +131,22 @@ public class ValidationControllerV3 {
     }
 
     @PostMapping("{itemId}/edit")
-    public String edit(@PathVariable Long itemId, @ModelAttribute("item") Item item){
+    public String edit(@PathVariable Long itemId, @Validated @ModelAttribute("item") Item item, BindingResult bindingResult){
+        
+        // 글로벌 오류는 Bean Validation 비추
+        //특정 필드가 아닌 복합 룰 검증
+        if(item.getPrice() != null && item.getQuantity() != null){
+            int resultPrice = item.getPrice() * item.getQuantity();
+            if(resultPrice < 10000){
+                bindingResult.rejectValue(null,"totalPriceMin", new Object[]{10000, resultPrice}, null);
+            }
+        }
+
+        if(bindingResult.hasErrors()){
+            log.info("errors={}",bindingResult);
+            return "basic/v3/editForm";
+        }
+        
         itemRepository.update(itemId, item);
         return "redirect:http://super-spoon-q5w94jx5xxph645p-8080.app.github.dev/basic/v3/items/{itemId}";
 
