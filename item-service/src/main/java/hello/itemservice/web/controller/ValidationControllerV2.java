@@ -34,9 +34,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Controller
+//@Controller
 @RequiredArgsConstructor
-@RequestMapping("/basic/items")
+@RequestMapping("/basic/v2/items")
 public class ValidationControllerV2 {
     
     private final ItemRepository itemRepository;
@@ -77,20 +77,20 @@ public class ValidationControllerV2 {
         List<Item> items = itemRepository.findAll();
 
         model.addAttribute("items", items);
-        return "basic/items";
+        return "basic/v2/items";
     }
 
     @GetMapping("/{itemId}")
     public String item(@PathVariable long itemId, Model model){
         Item item = itemRepository.findById(itemId);
         model.addAttribute("item", item);
-        return "basic/item";
+        return "basic/v2/item";
     }
 
     @GetMapping("/add")
     public String add(Model model){
         model.addAttribute("item", new Item());
-        return "basic/addForm";
+        return "basic/v2/addForm";
     }
    
 
@@ -120,7 +120,7 @@ public class ValidationControllerV2 {
         //검증에 실패하면 다시 입력 폼으로
         if(bindingResult.hasErrors()){
             log.info("errors={}",bindingResult);
-            return "basic/addForm";
+            return "basic/v2/addForm";
         }
 
         //성공 로직
@@ -266,7 +266,7 @@ public class ValidationControllerV2 {
         //검증에 실패하면 다시 입력 폼으로
         if(bindingResult.hasErrors()){
             log.info("errors={}",bindingResult);
-            return "basic/addForm";
+            return "basic/v2/addForm";
         }
 
         //성공 로직
@@ -274,7 +274,7 @@ public class ValidationControllerV2 {
         redirectAttributes.addAttribute("itemId",saveItem.getId());
         redirectAttributes.addAttribute("status", true);
         
-        return "redirect:http://super-spoon-q5w94jx5xxph645p-8080.app.github.dev/basic/items/{itemId}";
+        return "redirect:http://super-spoon-q5w94jx5xxph645p-8080.app.github.dev/basic/v2/items/{itemId}";
     }
 
     /*Validation 정리
@@ -289,13 +289,13 @@ public class ValidationControllerV2 {
     public String editForm(@PathVariable Long itemId, Model model){
         Item item = itemRepository.findById(itemId);
         model.addAttribute("item", item);
-        return "basic/editForm";
+        return "basic/v2/editForm";
     }
 
     @PostMapping("{itemId}/edit")
     public String edit(@PathVariable Long itemId, @ModelAttribute("item") Item item){
         itemRepository.update(itemId, item);
-        return "redirect:http://super-spoon-q5w94jx5xxph645p-8080.app.github.dev/basic/items/{itemId}";
+        return "redirect:http://super-spoon-q5w94jx5xxph645p-8080.app.github.dev/basic/v2/items/{itemId}";
 
     }
 
