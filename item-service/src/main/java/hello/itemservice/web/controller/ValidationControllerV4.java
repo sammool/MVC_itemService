@@ -31,6 +31,7 @@ import hello.itemservice.domain.item.ItemType;
 import hello.itemservice.domain.item.SaveCheck;
 import hello.itemservice.domain.item.UpdateCheck;
 import hello.itemservice.web.controller.form.ItemSaveForm;
+import hello.itemservice.web.controller.form.ItemUpdateForm;
 import hello.itemservice.web.validation.ItemValidator;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -160,12 +161,12 @@ public class ValidationControllerV4 {
     }
 
     @PostMapping("{itemId}/edit")
-    public String editV2(@PathVariable Long itemId, @Validated(UpdateCheck.class) @ModelAttribute("item") Item item, BindingResult bindingResult){
+    public String editV2(@PathVariable Long itemId, @Validated @ModelAttribute("item") ItemUpdateForm form, BindingResult bindingResult){
         
         // 글로벌 오류는 Bean Validation 비추
         //특정 필드가 아닌 복합 룰 검증
-        if(item.getPrice() != null && item.getQuantity() != null){
-            int resultPrice = item.getPrice() * item.getQuantity();
+        if(form.getPrice() != null && form.getQuantity() != null){
+            int resultPrice = form.getPrice() * form.getQuantity();
             if(resultPrice < 10000){
                 bindingResult.rejectValue(null,"totalPriceMin", new Object[]{10000, resultPrice}, null);
             }
@@ -175,8 +176,13 @@ public class ValidationControllerV4 {
             log.info("errors={}",bindingResult);
             return "basic/v4/editForm";
         }
+
+        Item itemParam = new Item();
+        itemParam.setItemName(form.getItemName());
+        itemParam.setPrice(form.getPrice());
+        itemParam.setQuantity(form.getQuantity());
         
-        itemRepository.update(itemId, item);
+        itemRepository.update(itemId, itemParam);
         return "redirect:http://super-spoon-q5w94jx5xxph645p-8080.app.github.dev/basic/v4/items/{itemId}";
 
     }
