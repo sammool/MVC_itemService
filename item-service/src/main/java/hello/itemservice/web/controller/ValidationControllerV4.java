@@ -30,16 +30,17 @@ import hello.itemservice.domain.item.ItemRepository;
 import hello.itemservice.domain.item.ItemType;
 import hello.itemservice.domain.item.SaveCheck;
 import hello.itemservice.domain.item.UpdateCheck;
+import hello.itemservice.web.controller.form.ItemSaveForm;
 import hello.itemservice.web.validation.ItemValidator;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-//@Controller
+@Controller
 @RequiredArgsConstructor
-@RequestMapping("/basic/v3/items")
-public class ValidationControllerV3 {
+@RequestMapping("/basic/v4/items")
+public class ValidationControllerV4 {
     
     private final ItemRepository itemRepository;
 
@@ -73,57 +74,30 @@ public class ValidationControllerV3 {
         List<Item> items = itemRepository.findAll();
 
         model.addAttribute("items", items);
-        return "basic/v3/items";
+        return "basic/v4/items";
     }
 
     @GetMapping("/{itemId}")
     public String item(@PathVariable long itemId, Model model){
         Item item = itemRepository.findById(itemId);
         model.addAttribute("item", item);
-        return "basic/v3/item";
+        return "basic/v4/item";
     }
 
     @GetMapping("/add")
     public String add(Model model){
         model.addAttribute("item", new Item());
-        return "basic/v3/addForm";
+        return "basic/v4/addForm";
     }
    
 
-    
-   // @PostMapping("/add")
-    public String addItem(@Validated @ModelAttribute("item") Item item, BindingResult bindingResult,RedirectAttributes redirectAttributes, Model model){
-        
-        // 글로벌 오류는 Bean Validation 비추
-        //특정 필드가 아닌 복합 룰 검증
-        if(item.getPrice() != null && item.getQuantity() != null){
-            int resultPrice = item.getPrice() * item.getQuantity();
-            if(resultPrice < 10000){
-                bindingResult.rejectValue(null,"totalPriceMin", new Object[]{10000, resultPrice}, null);
-            }
-        }
-
-        //검증에 실패하면 다시 입력 폼으로
-        if(bindingResult.hasErrors()){
-            log.info("errors={}",bindingResult);
-            return "basic/v3/addForm";
-        }
-
-        //성공 로직
-        Item saveItem = itemRepository.save(item);
-        redirectAttributes.addAttribute("itemId",saveItem.getId());
-        redirectAttributes.addAttribute("status", true);
-        
-        return "redirect:http://super-spoon-q5w94jx5xxph645p-8080.app.github.dev/basic/v3/items/{itemId}";
-    }
-
     @PostMapping("/add")
-    public String addItem2(@Validated(SaveCheck.class) @ModelAttribute("item") Item item, BindingResult bindingResult,RedirectAttributes redirectAttributes, Model model){
+    public String addItem(@Validated @ModelAttribute("item") ItemSaveForm form, BindingResult bindingResult,RedirectAttributes redirectAttributes, Model model){
         
         // 글로벌 오류는 Bean Validation 비추
         //특정 필드가 아닌 복합 룰 검증
-        if(item.getPrice() != null && item.getQuantity() != null){
-            int resultPrice = item.getPrice() * item.getQuantity();
+        if(form.getPrice() != null && form.getQuantity() != null){
+            int resultPrice = form.getPrice() * form.getQuantity();
             if(resultPrice < 10000){
                 bindingResult.rejectValue(null,"totalPriceMin", new Object[]{10000, resultPrice}, null);
             }
@@ -132,15 +106,20 @@ public class ValidationControllerV3 {
         //검증에 실패하면 다시 입력 폼으로
         if(bindingResult.hasErrors()){
             log.info("errors={}",bindingResult);
-            return "basic/v3/addForm";
+            return "basic/v4/addForm";
         }
 
         //성공 로직
+        Item item = new Item();
+        item.setItemName(form.getItemName());
+        item.setPrice(form.getPrice());
+        item.setQuantity(form.getQuantity());
+
         Item saveItem = itemRepository.save(item);
         redirectAttributes.addAttribute("itemId",saveItem.getId());
         redirectAttributes.addAttribute("status", true);
         
-        return "redirect:http://super-spoon-q5w94jx5xxph645p-8080.app.github.dev/basic/v3/items/{itemId}";
+        return "redirect:http://super-spoon-q5w94jx5xxph645p-8080.app.github.dev/basic/v4/items/{itemId}";
     }
 
     /*Validation 정리
@@ -155,7 +134,7 @@ public class ValidationControllerV3 {
     public String editForm(@PathVariable Long itemId, Model model){
         Item item = itemRepository.findById(itemId);
         model.addAttribute("item", item);
-        return "basic/v3/editForm";
+        return "basic/v4/editForm";
     }
 
     //@PostMapping("{itemId}/edit")
@@ -172,11 +151,11 @@ public class ValidationControllerV3 {
 
         if(bindingResult.hasErrors()){
             log.info("errors={}",bindingResult);
-            return "basic/v3/editForm";
+            return "basic/v4/editForm";
         }
         
         itemRepository.update(itemId, item);
-        return "redirect:http://super-spoon-q5w94jx5xxph645p-8080.app.github.dev/basic/v3/items/{itemId}";
+        return "redirect:http://super-spoon-q5w94jx5xxph645p-8080.app.github.dev/basic/v4/items/{itemId}";
 
     }
 
@@ -194,11 +173,11 @@ public class ValidationControllerV3 {
 
         if(bindingResult.hasErrors()){
             log.info("errors={}",bindingResult);
-            return "basic/v3/editForm";
+            return "basic/v4/editForm";
         }
         
         itemRepository.update(itemId, item);
-        return "redirect:http://super-spoon-q5w94jx5xxph645p-8080.app.github.dev/basic/v3/items/{itemId}";
+        return "redirect:http://super-spoon-q5w94jx5xxph645p-8080.app.github.dev/basic/v4/items/{itemId}";
 
     }
 
