@@ -15,6 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/validation/api/items")
 public class ValidationItemApiController {
     
+    //@RequestBody는 HttpMessageConverter 단계에서 데이터를 객체로 
+    //변경하지 못하면 이후 단계 진행 불가
+    
     @PostMapping("/add")
     public Object addItem(@RequestBody @Validated ItemSaveForm form, BindingResult bindingResult){
         
